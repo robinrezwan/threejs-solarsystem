@@ -45,11 +45,14 @@ scene.background = cubeTexture;
 // Set up Camera ----------------------------------------------------------------------------------
 
 const camera = new THREE.PerspectiveCamera(45, size.width / size.height, 0.1, 1000);
+camera.position.set(0, 50, 200);
 
 // Set orbit controls to move the camera around
-const orbit = new OrbitControls(camera, canvas);
-camera.position.set(0, 50, 200);
-orbit.update();
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.minDistance = 70;
+controls.maxDistance = 500;
 
 // Setup Light ------------------------------------------------------------------------------------
 
@@ -163,8 +166,6 @@ scene.add(sunMesh);
 
 // Function for creating planets
 function createPlanet(data) {
-    const planet = {};
-
     const planetGeometry = new THREE.SphereGeometry(data.radius, 64, 64);
     const planetMaterial = new THREE.MeshStandardMaterial({map: data.texture});
     const planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
@@ -172,18 +173,27 @@ function createPlanet(data) {
     const planetCenter = new THREE.Object3D();
     planetCenter.add(planetMesh);
 
-    planet.mesh = planetMesh;
-    planet.center = planetCenter;
+    let ringMesh;
 
     if (data.ring) {
         const ringGeometry = new THREE.RingGeometry(data.ring.innerRadius, data.ring.outerRadius, 64);
         const ringMaterial = new THREE.MeshBasicMaterial({map: data.ring.texture, side: THREE.DoubleSide});
-        const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
-        planetMesh.add(ringMesh);
+        ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
         ringMesh.rotateX(Math.PI / 2);
-        planet.ringMesh = ringMesh;
+        planetMesh.add(ringMesh);
     }
-    return planet;
+
+    // const torusGeometry = new THREE.TorusGeometry(data.distance, 0.1, 64, 256);
+    // const torusMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
+    // const torusMesh = new THREE.Mesh(torusGeometry, torusMaterial);
+    // torusMesh.rotateX(Math.PI / 2);
+    // planetCenter.add(torusMesh);
+
+    return {
+        'center': planetCenter,
+        'mesh': planetMesh,
+        'ring': ringMesh,
+    };
 }
 
 // Create Planet meshes
@@ -241,6 +251,9 @@ function animate() {
     saturn.mesh.rotateY(planetsData.saturn.rotation);
     uranus.mesh.rotateY(planetsData.uranus.rotation);
     neptune.mesh.rotateY(planetsData.neptune.rotation);
+
+    // Update orbit controls
+    controls.update();
 
     // Render scene
     renderer.render(scene, camera);
