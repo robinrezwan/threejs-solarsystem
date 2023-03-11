@@ -42,6 +42,14 @@ const cubeTexture = cubeTextureLoader.load([
 ]);
 scene.background = cubeTexture;
 
+// Setup Light ------------------------------------------------------------------------------------
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
+scene.add(pointLight);
+
 // Set up Camera ----------------------------------------------------------------------------------
 
 const camera = new THREE.PerspectiveCamera(45, size.width / size.height, 0.1, 1000);
@@ -53,14 +61,6 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.minDistance = 70;
 controls.maxDistance = 500;
-
-// Setup Light ------------------------------------------------------------------------------------
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
-scene.add(ambientLight);
-
-const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-scene.add(pointLight);
 
 // Set up Mesh ------------------------------------------------------------------------------------
 
